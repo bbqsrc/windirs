@@ -50,7 +50,6 @@ fn raw_known_folder_path(id: REFKNOWNFOLDERID) -> Result<PathBuf, Error> {
         E_FAIL => Err(Error::Virtual),
         E_INVALIDARG => Err(Error::InvalidArg(std::io::Error::last_os_error())),
         NOT_FOUND | CANNOT_FIND_PATH => Err(Error::NotFound),
-        // E_NOTFOUND => Err(Error::NotFound(std::io::Error::last_os_error())),
         e => Err(Error::Other(e as u32, std::io::Error::last_os_error())),
     };
 
