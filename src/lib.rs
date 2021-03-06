@@ -13,12 +13,13 @@ use winapi::{
     },
 };
 
+/// Error cases when resolving folder identifiers to paths.
 #[derive(Debug)]
 pub enum Error {
     Virtual,
     NotFound,
-    InvalidArg(std::io::Error),
-    Other(u32, std::io::Error),
+    InvalidArg,
+    Other(std::io::Error, HRESULT),
 }
 
 impl Display for Error {
@@ -26,7 +27,7 @@ impl Display for Error {
         f.write_str(match self {
             Error::Virtual => "virtual folders have no path",
             Error::NotFound => "not found",
-            Error::InvalidArg(_) => "invalid arg",
+            Error::InvalidArg => "invalid arg",
             Error::Other(_, _) => "other",
         })
     }
@@ -48,9 +49,9 @@ fn raw_known_folder_path(id: REFKNOWNFOLDERID) -> Result<PathBuf, Error> {
             Ok(PathBuf::from(os_str))
         }
         E_FAIL => Err(Error::Virtual),
-        E_INVALIDARG => Err(Error::InvalidArg(std::io::Error::last_os_error())),
+        E_INVALIDARG => Err(Error::InvalidArg),
         NOT_FOUND | CANNOT_FIND_PATH => Err(Error::NotFound),
-        e => Err(Error::Other(e as u32, std::io::Error::last_os_error())),
+        e => Err(Error::Other(std::io::Error::last_os_error(), e)),
     };
 
     // Docs say that even if the function fails, you need to free this.
@@ -59,11 +60,14 @@ fn raw_known_folder_path(id: REFKNOWNFOLDERID) -> Result<PathBuf, Error> {
     result
 }
 
+/// Get a path for a given folder identifier.
 #[inline(always)]
 pub fn known_folder_path(id: FolderId) -> Result<PathBuf, Error> {
     raw_known_folder_path(&FOLDER_IDS[id as usize])
 }
 
+/// Folder identifiers.
+#[non_exhaustive]
 pub enum FolderId {
     NetworkFolder = 0,
     ComputerFolder,

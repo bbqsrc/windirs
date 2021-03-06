@@ -1,11 +1,13 @@
 [package]
 name = "windirs"
 description = "A safe wrapper around `SHGetKnownFolderPath`."
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Brendan Molloy <brendan@bbqsrc.net>"]
 edition = "2018"
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/bbqsrc/windirs"
+categories = ["filesystem", "os", "os::windows-apis"]
+keywords = ["windows", "paths", "folders"]
 
 [dependencies.winapi]
 version = "0.3"
